@@ -10,7 +10,7 @@ waistPixel=round(2.4E-3/pixelPitch,0);
 % scale=0.1;
 % qsize=round(SLMResolution*scale,0);
 
-qsize=[30,30];
+qsize=[10,10];
 scale=qsize(1)/SLMResolution(1);
 
 waistPixelScaled=waistPixel*scale;
@@ -19,23 +19,29 @@ WfiberScaled=Wfiber*scale;
 lambda_PScaled=lambda_P*scale;
 fScaled=f*scale;
 center=round(qsize./2,0);
+%generate the electric field at the input of slm
 E_lm=gauss2d(qsize, waistPixelScaled, center);
 E_no=gauss2d(qsize, waistPixelScaled, center);
 x=1:qsize(1);
 y=1:qsize(2);
 [X,Y] = meshgrid(x,y);
 Z=X.^2 + Y.^2;
+%fiber modes
 K_lm=exp(((-pi^2*pixelPitchScaled^2*WfiberScaled^2)/(lambda_PScaled^2*fScaled^2))*Z);
-E_lm=E_lm.*K_lm;
-E_no=E_no.*K_lm;
+%generate random number 0,1 for qsize dimension to modify the input
 r=randi([0,1],qsize);
 E_lm=E_lm.*r;
 E_no=E_no.*r;
+%multiply the input field with fiber mode
+E_lm=E_lm.*K_lm;
+E_no=E_no.*K_lm;
 
+%plot the modified electric field
 figure;
 % imshow(E_lm);
 imagesc(E_lm);
 colormap hot
+%display interaction matric Jij
 Eij=E_lm(:)*E_no(:).';
 figure;
 % imshow(Eij);
